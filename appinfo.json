@@ -1,0 +1,42 @@
+{
+    "appKeys": {
+        "dummy": 0
+    },
+    "capabilities": [
+        ""
+    ],
+    "companyName": "Tsukune",
+    "longName": "WellAndLoss",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/suzu001.png",
+                "name": "IMAGE_BG_SUZU001",
+                "targetPlatforms": [
+                    "chalk"
+                ],
+                "type": "png"
+            },
+            {
+                "characterRegex": "[0-9;. ]",
+                "file": "fonts/singaporeslingbold.ttf",
+                "name": "FONT_SINGAPORE_BOLD_20",
+                "targetPlatforms": [
+                    "chalk"
+                ],
+                "type": "font"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "WAL",
+    "targetPlatforms": [
+        "chalk"
+    ],
+    "uuid": "25becbb7-c0bc-4180-82b6-b36f1bf894c7",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}
