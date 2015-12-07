@@ -17,6 +17,7 @@ typedef struct {
 static Window *s_main_window;
 static Layer *s_canvas_layer;
 static TextLayer *s_output_layer;
+static TextLayer *s_output_layer2;
 
 static BitmapLayer *s_background_layer;
 static GBitmap *s_background_bitmap;
@@ -59,10 +60,19 @@ static void animate(int duration, int delay, AnimationImplementation *implementa
 
 // [battery]
 static void battery_handler(BatteryChargeState new_state) {
+  static char battery_text[] = "<\U0001F638";
+
+  if (new_state.is_charging) {
+    snprintf(battery_text, sizeof(battery_text), "<\U0001F63B");
+  } else {
+    snprintf(battery_text, sizeof(battery_text), "<%d", new_state.charge_percent);
+  }
+  text_layer_set_text(s_output_layer, battery_text);
+  text_layer_set_text(s_output_layer2, battery_text);
   // Write to buffer and display
-  static char s_battery_buffer[32];
-  snprintf(s_battery_buffer, sizeof(s_battery_buffer), "BatLevel : %d", new_state.charge_percent);
-  text_layer_set_text(s_output_layer, s_battery_buffer);
+  //static char s_battery_buffer[32];
+  //snprintf(s_battery_buffer, sizeof(s_battery_buffer), "BatLevel : %d", new_state.charge_percent);
+  //text_layer_set_text(s_output_layer, s_battery_buffer);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits changed) {
@@ -161,12 +171,23 @@ static void window_load(Window *window) {
   layer_set_update_proc(s_canvas_layer, update_proc);
   layer_add_child(window_layer, s_canvas_layer);
 
-  // Create output TextLayer
-  s_output_layer = text_layer_create(GRect(30, 150, window_bounds.size.w/1.5, window_bounds.size.h/5));
+  // [battery] Create output TextLayer
+  s_output_layer = text_layer_create(GRect(96, 112, window_bounds.size.w/2, window_bounds.size.h/6));
+  text_layer_set_text_color(s_output_layer, GColorOxfordBlue);
+  text_layer_set_font(s_output_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_background_color(s_output_layer, GColorClear);
   text_layer_set_text_alignment(s_output_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(s_output_layer));
 
-  // Get the current battery level
+  // [battery] Create output2 TextLayer
+  s_output_layer2 = text_layer_create(GRect(94, 110, window_bounds.size.w/2, window_bounds.size.h/6));
+  text_layer_set_text_color(s_output_layer2, GColorYellow);
+  text_layer_set_font(s_output_layer2, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_background_color(s_output_layer2, GColorClear);
+  text_layer_set_text_alignment(s_output_layer2, GTextAlignmentCenter);
+  layer_add_child(window_layer, text_layer_get_layer(s_output_layer2));
+
+  // [battery] Get the current battery level
   battery_handler(battery_state_service_peek());
 }
 

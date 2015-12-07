@@ -6,12 +6,13 @@
         ""
     ],
     "companyName": "Tsukune",
-    "longName": "WellAndLoss",
+    "longName": "SuzuSan",
     "projectType": "native",
     "resources": {
         "media": [
             {
                 "file": "images/suzu001.png",
+                "menuIcon": true,
                 "name": "IMAGE_BG_SUZU001",
                 "targetPlatforms": [
                     "chalk"
@@ -30,12 +31,12 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "WAL",
+    "shortName": "SZ",
     "targetPlatforms": [
         "chalk"
     ],
     "uuid": "25becbb7-c0bc-4180-82b6-b36f1bf894c7",
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "watchface": true
     }
