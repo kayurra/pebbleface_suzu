@@ -16,6 +16,7 @@ typedef struct {
 
 static Window *s_main_window;
 static Layer *s_canvas_layer;
+static TextLayer *s_output_layer;
 
 static BitmapLayer *s_background_layer;
 static GBitmap *s_background_bitmap;
@@ -55,6 +56,14 @@ static void animate(int duration, int delay, AnimationImplementation *implementa
 }
 
 /************************************ UI **************************************/
+
+// [battery]
+static void battery_handler(BatteryChargeState new_state) {
+  // Write to buffer and display
+  static char s_battery_buffer[32];
+  snprintf(s_battery_buffer, sizeof(s_battery_buffer), "BatLevel : %d", new_state.charge_percent);
+  text_layer_set_text(s_output_layer, s_battery_buffer);
+}
 
 static void tick_handler(struct tm *tick_time, TimeUnits changed) {
   // Store time
@@ -128,7 +137,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
   if(s_radius > HAND_MARGIN) {
     graphics_draw_line(ctx, s_center, minute_hand);
   }
-  
+
 }
 
 static void window_load(Window *window) {
@@ -151,6 +160,14 @@ static void window_load(Window *window) {
   s_canvas_layer = layer_create(window_bounds);
   layer_set_update_proc(s_canvas_layer, update_proc);
   layer_add_child(window_layer, s_canvas_layer);
+
+  // Create output TextLayer
+  s_output_layer = text_layer_create(GRect(30, 150, window_bounds.size.w/1.5, window_bounds.size.h/5));
+  text_layer_set_text_alignment(s_output_layer, GTextAlignmentCenter);
+  layer_add_child(window_layer, text_layer_get_layer(s_output_layer));
+
+  // Get the current battery level
+  battery_handler(battery_state_service_peek());
 }
 
 static void window_unload(Window *window) {
@@ -198,6 +215,9 @@ static void init() {
 
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 
+  // [battery]Subscribe to the Battery State Service
+  battery_state_service_subscribe(battery_handler);
+
   // Prepare animations
   AnimationImplementation radius_impl = {
     .update = radius_update
@@ -208,6 +228,7 @@ static void init() {
     .update = hands_update
   };
   animate(2 * ANIMATION_DURATION, ANIMATION_DELAY, &hands_impl, true);
+
 }
 
 static void deinit() {
