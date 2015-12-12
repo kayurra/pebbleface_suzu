@@ -17,8 +17,10 @@ typedef struct {
 static Window *s_main_window;
 static Layer *s_canvas_layer, *s_date_layer;
 static TextLayer *s_time_layer,*s_output_layer, *s_output_layer2;
+
 // [date]
 static TextLayer *s_day_label, *s_num_label;
+static TextLayer *s_day_label2, *s_num_label2;
 
 static BitmapLayer *s_background_layer;
 static GBitmap *s_background_bitmap;
@@ -183,7 +185,7 @@ static void window_load(Window *window) {
   layer_add_child(window_layer, s_canvas_layer);
 
   // [battery] Create output TextLayer
-  s_output_layer = text_layer_create(GRect(96, 112, window_bounds.size.w/2, window_bounds.size.h/6));
+  s_output_layer = text_layer_create(GRect(95, 111, window_bounds.size.w/2, window_bounds.size.h/6));
   text_layer_set_text_color(s_output_layer, GColorOxfordBlue);
   text_layer_set_font(s_output_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_background_color(s_output_layer, GColorClear);
@@ -206,27 +208,48 @@ static void window_load(Window *window) {
   layer_set_update_proc(s_date_layer, date_update_proc);
   layer_add_child(window_layer, s_date_layer);
   
+  // [date-shadow]
+  s_day_label2 = text_layer_create(PBL_IF_ROUND_ELSE(
+    //GRect(63, 114, 27, 20),
+    GRect(24, 121, 32, 35),
+    GRect(46, 114, 27, 20)));
+  text_layer_set_text(s_day_label2, s_day_buffer);
+  text_layer_set_background_color(s_day_label2, GColorOxfordBlue);
+  text_layer_set_text_color(s_day_label2, GColorWhite);
+  text_layer_set_font(s_day_label2, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+  layer_add_child(s_date_layer, text_layer_get_layer(s_day_label2));
+
   s_day_label = text_layer_create(PBL_IF_ROUND_ELSE(
     //GRect(63, 114, 27, 20),
-    GRect(23, 125, 40, 30),
+    GRect(23, 120, 32, 35),
     GRect(46, 114, 27, 20)));
   text_layer_set_text(s_day_label, s_day_buffer);
   text_layer_set_background_color(s_day_label, GColorClear);
   text_layer_set_text_color(s_day_label, GColorYellow);
   text_layer_set_font(s_day_label, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-
   layer_add_child(s_date_layer, text_layer_get_layer(s_day_label));
+
+  // [aaa-shadow]
+  s_num_label2 = text_layer_create(PBL_IF_ROUND_ELSE(
+    //GRect(90, 114, 18, 20),
+    GRect(51, 121, 32, 35),
+    GRect(73, 114, 18, 20)));
+  text_layer_set_text(s_num_label2, s_num_buffer);
+  text_layer_set_background_color(s_num_label2, GColorOxfordBlue);
+  text_layer_set_text_color(s_num_label2, GColorWhite);
+  text_layer_set_font(s_num_label2, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  layer_add_child(s_date_layer, text_layer_get_layer(s_num_label2));
 
   s_num_label = text_layer_create(PBL_IF_ROUND_ELSE(
     //GRect(90, 114, 18, 20),
-    GRect(50, 125, 40, 30),
+    GRect(50, 120, 32, 35),
     GRect(73, 114, 18, 20)));
   text_layer_set_text(s_num_label, s_num_buffer);
   text_layer_set_background_color(s_num_label, GColorClear);
   text_layer_set_text_color(s_num_label, GColorYellow);
   text_layer_set_font(s_num_label, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-
   layer_add_child(s_date_layer, text_layer_get_layer(s_num_label));
+
 }
 
 static void window_unload(Window *window) {
