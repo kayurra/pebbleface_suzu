@@ -15,21 +15,23 @@ typedef struct {
 } Time;
 
 static Window *s_main_window;
-static Layer *s_canvas_layer;
-static TextLayer *s_output_layer;
-static TextLayer *s_output_layer2;
+static Layer *s_canvas_layer, *s_date_layer;
+static TextLayer *s_time_layer,*s_output_layer, *s_output_layer2;
+// [date]
+static TextLayer *s_day_label, *s_num_label;
 
 static BitmapLayer *s_background_layer;
 static GBitmap *s_background_bitmap;
 
 // For Date Display
-static TextLayer *s_time_layer, *s_date_layer;
 static GFont s_time_font, s_date_font;
 
 static GPoint s_center;
 static Time s_last_time, s_anim_time;
 static int s_radius = 0, s_anim_hours_60 = 0, s_color_channels[3];
 static bool s_animating = false;
+// [date]
+static char s_num_buffer[4], s_day_buffer[6];
 
 /*************************** AnimationImplementation **************************/
 
@@ -69,10 +71,6 @@ static void battery_handler(BatteryChargeState new_state) {
   }
   text_layer_set_text(s_output_layer, battery_text);
   text_layer_set_text(s_output_layer2, battery_text);
-  // Write to buffer and display
-  //static char s_battery_buffer[32];
-  //snprintf(s_battery_buffer, sizeof(s_battery_buffer), "BatLevel : %d", new_state.charge_percent);
-  //text_layer_set_text(s_output_layer, s_battery_buffer);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits changed) {
@@ -96,10 +94,23 @@ static int hours_to_minutes(int hours_out_of_12) {
   return (int)(float)(((float)hours_out_of_12 / 12.0F) * 60.0F);
 }
 
+// [date]
+static void date_update_proc(Layer *layer, GContext *ctx) {
+  time_t now = time(NULL);
+  struct tm *t = localtime(&now);
+
+  strftime(s_day_buffer, sizeof(s_day_buffer), "%a", t);
+  text_layer_set_text(s_day_label, s_day_buffer);
+
+  strftime(s_num_buffer, sizeof(s_num_buffer), "%d", t);
+  text_layer_set_text(s_num_label, s_num_buffer);
+}
+
 static void update_proc(Layer *layer, GContext *ctx) {
   // Color background?
   GRect bounds = layer_get_bounds(layer);
   if(COLORS) {
+    // TODO CREATE THE BG ROUND ANIMATION WITH OUT MASK CAT 
     //graphics_context_set_fill_color(ctx, GColorFromRGB(s_color_channels[0], s_color_channels[1], s_color_channels[2]));
     //graphics_fill_rect(ctx, bounds, 0, GCornerNone);
   }
@@ -189,10 +200,38 @@ static void window_load(Window *window) {
 
   // [battery] Get the current battery level
   battery_handler(battery_state_service_peek());
+
+  // [date]
+  s_date_layer = layer_create(window_bounds);
+  layer_set_update_proc(s_date_layer, date_update_proc);
+  layer_add_child(window_layer, s_date_layer);
+  
+  s_day_label = text_layer_create(PBL_IF_ROUND_ELSE(
+    //GRect(63, 114, 27, 20),
+    GRect(23, 125, 40, 30),
+    GRect(46, 114, 27, 20)));
+  text_layer_set_text(s_day_label, s_day_buffer);
+  text_layer_set_background_color(s_day_label, GColorClear);
+  text_layer_set_text_color(s_day_label, GColorYellow);
+  text_layer_set_font(s_day_label, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+
+  layer_add_child(s_date_layer, text_layer_get_layer(s_day_label));
+
+  s_num_label = text_layer_create(PBL_IF_ROUND_ELSE(
+    //GRect(90, 114, 18, 20),
+    GRect(50, 125, 40, 30),
+    GRect(73, 114, 18, 20)));
+  text_layer_set_text(s_num_label, s_num_buffer);
+  text_layer_set_background_color(s_num_label, GColorClear);
+  text_layer_set_text_color(s_num_label, GColorYellow);
+  text_layer_set_font(s_num_label, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+
+  layer_add_child(s_date_layer, text_layer_get_layer(s_num_label));
 }
 
 static void window_unload(Window *window) {
   layer_destroy(s_canvas_layer);
+  layer_destroy(s_date_layer);
 }
 
 /*********************************** App **************************************/
