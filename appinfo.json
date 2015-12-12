@@ -11,8 +11,16 @@
     "resources": {
         "media": [
             {
-                "file": "images/suzu001.png",
+                "file": "images/suzu001_2828.png",
                 "menuIcon": true,
+                "name": "IMAGE_SUZU001_2828",
+                "targetPlatforms": [
+                    "chalk"
+                ],
+                "type": "png"
+            },
+            {
+                "file": "images/suzu001.png",
                 "name": "IMAGE_BG_SUZU001",
                 "targetPlatforms": [
                     "chalk"
@@ -36,7 +44,7 @@
         "chalk"
     ],
     "uuid": "40e908ba-7273-4a06-9ae7-20960cbe0a79",
-    "versionLabel": "1.1",
+    "versionLabel": "1.2",
     "watchapp": {
         "watchface": true
     }
